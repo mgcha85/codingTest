@@ -25,16 +25,19 @@ def min_touches(numbers: list[str], operators: list[str], M: int, W: int):
     if str(W) in numbers: # 목표 숫자와 동일한 숫자를 바로 사용할 수 있는 경우
         return 1
     
-    numbers_int = set(map(int, numbers))
-    offset = 1
+    # map(data_type, list of data) => list of data with the data_type -> convert to set
+    numbers_int = set(map(int, numbers)) 
+    # n_digit은 1로 시작하지만 실제론 2로 시작 (위에서 미리 한자리 수에 대한 1을 return했기 때문)
+    n_digit = 1
 
     while True:
-        offset += 1
+        n_digit += 1
 
-        if offset >= M: return -1
-        numbers_add = list([''.join(numbers) for numbers in product(numbers, repeat=offset)])
+        if n_digit >= M: return -1 # M try가 넘으면 -1리턴
+        
+        numbers_add = list([''.join(numbers) for numbers in product(numbers, repeat=n_digit)])
         if str(W) in numbers_add:
-            return offset
+            return n_digit
         
         numbers_int_add = set(map(int, numbers_add))
         numbers_int = numbers_int.union(numbers_int_add)
@@ -46,16 +49,16 @@ def min_touches(numbers: list[str], operators: list[str], M: int, W: int):
         visited = copy(numbers_int)
 
         while queue:
-            current, touches = queue.popleft()
+            current, touches = queue.popleft() # FIFO 첫번째 넣은 값을 뺀다.
 
             for op in operators:
                 for num in numbers_int:
                     if touches + len(str(num)) + 1 > M: continue  # 현재 숫자, 연산자, 다음 숫자를 고려한 터치 횟수
                     result = operate(current, op, num)
                     if result is not None and 0 <= result <= 999 and result not in visited:
-                        new_touches = touches + len(str(num)) + 1
-                        if result == W: return new_touches + 1
-                        queue.append((result, new_touches))
+                        num_touches = touches + len(str(num)) + 1
+                        if result == W: return num_touches + 1 # '='을 추가해서 +1
+                        queue.append((result, num_touches))
                         visited.add(result)
 
 
@@ -85,6 +88,6 @@ def print_results(results):
 
 
 # 입력 파일 이름
-filename = "input.txt"
+filename = "input1.txt"
 results = read_input_from_file(filename)
 print_results(results)
